@@ -1,0 +1,145 @@
+.Main-Class-Back {
+    background-color: #e7eaf6;
+}
+
+.chat-container {
+    height: calc(100vh - 200px);
+    overflow: auto;
+    position: relative;
+    padding:30px 0 0 5px;
+    margin:10px;
+    margin-top: 100px;
+    max-height: calc(100vh - 220px);
+    display:flex;
+    flex-direction: column;
+    justify-content: flex-end; 
+}
+
+.chat-input-container {
+    position: fixed;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    margin: 10px 0 0 20px;
+    width: 75%;
+}
+
+.chat-input {
+    flex: 1;
+    border: 2px; /* Ensure the border matches the button */
+    border-right: none; /* Remove right border to merge with button */
+    border-radius: 10px 0 0 10px;
+    height: 80px;
+    outline: none;
+    padding: 10px;
+    color: black; /* Adjust text color based on background */
+    font-size: 16px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); /* Adds a soft shadow */
+}
+
+.send-button {
+    width: 50px;
+    height: 80px;
+    border: 2px solid #007bff; /* Ensure consistent border size */
+    border-left: none; /* Remove left border to merge with input */
+    background-color: #007bff;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    border-radius: 0 10px 10px 0;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.send-button:hover {
+    background-color: #0056b3;
+}
+ 
+.chat-messages {
+    display: flex;
+    flex-direction: column;
+    gap:10px;
+    padding: 10px;
+    overflow-y: auto;
+    height: 100%;
+    flex-grow:1;
+    margin-bottom: 100px;
+    scroll-behavior: smooth;
+}
+
+
+
+.Sent-Message {
+    background-color: #734F96;
+    border-radius: 10px;
+    padding: 10px;
+    margin: 5px;
+    align-self: flex-end; /* Ensures alignment to the right */
+    max-width: 60%;
+    color: white;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    opacity: 0; /* Initially hidden */
+    transform: translateY(10px); /* Start slightly lower */
+    animation: fadeIn 1s ease-out forwards; /* Smooth appearance */
+}
+
+
+.Received-Message {
+    background-color: whitesmoke;
+    border-radius: 10px;
+    padding: 10px;
+    margin: 5px;
+    align-self: flex-start; /* Ensures alignment to the left */
+    max-width: 60%;
+    color: black;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    opacity: 0; /* Initially hidden */
+    transform: translateY(10px); /* Start slightly lower */
+    animation: fadeIn 1s ease-out forwards; /* Smooth appearance */
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+.Refresh-Button {
+
+    /* background-color: #734F96; */
+    background: transparent;
+    /* border-radius: 10px; */
+
+    border:none;
+    font-weight: bold;
+    font-family: monospace;
+    color: white;
+    padding: 10px;
+    margin-left: 10px;
+    position:absolute;
+    top:0;
+    right:0;
+    /* border: 2px solid #734F96; */
+    text-align: center;
+    cursor: pointer;
+    margin: 10px;
+    margin-bottom: 20px; /* Added margin for padding outside the button *//* `box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); */
+}
+
+
+
+.refrsh-img {
+
+    width: 80px;
+    height: 80px;
+    mix-blend-mode: multiply;
+}
+
+
