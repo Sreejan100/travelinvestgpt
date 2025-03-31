@@ -55,11 +55,7 @@ export default function RootLayout() {
 
   const handleRefresh = () => {
     setMessages([]);
-    if (chatRef.current) {
-      while (chatRef.current.firstChild) {
-        chatRef.current.removeChild(chatRef.current.firstChild); // Ensures UI is cleared
-      }
-    }// Clears messages from the UI
+    setText('');      // Clear input field
   }
 
   return (
@@ -68,8 +64,8 @@ export default function RootLayout() {
 
     
       <button onClick={handleRefresh}  className="Refresh-Button"><img src='/refresh-img.png' className="refrsh-img"/></button>
-        <div className="chat-container"  key={messages.length}>
-          <div className="chat-messages" ref={chatRef}>
+        <div className="chat-container" >
+          <div className="chat-messages" ref={chatRef} >
             {messages.map((msg, index) => (
               <div key={index} className={msg.sender === "user" ? "Sent-Message" : "Received-Message"}>
                 <p>{msg.text}</p>
