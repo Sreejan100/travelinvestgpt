@@ -36,20 +36,31 @@ const handleSubmit = async (e) => {
 
  return (
 
-            <div className="login-container">
-                <div className="image-container">
-                    <img src="/chatloginimg.jpeg" className="login-image" />
-                </div>
-                <div className="login-form-container">
-                    <h1 className="login-title">Login</h1>
-                    <form className="login-form" onSubmit={handleSubmit}>
-                        <input type="email" placeholder="Email" className="login-input-user"  value={Email} onChange={(e) => setEmail(e.target.value)}/>
-                        <input type="password" placeholder="Password" className="login-input-pass" value={password} onChange={(e) => setPassword(e.target.value)}/>
-                        <button type="submit" className="login-button-submit">Login</button>
-                    </form>
-                </div>
-                
-            </div>
+    <div className="login-wrapper">
+    <div className="login-content">
+    <div className="login-left">
+      <img src="/chatloginimg.jpg" alt="Login Visual" className="login-image" />
+    </div>
+    <div className="login-right">
+      <h2>Login to your account</h2>
+      <p>Don't have an account? <a href="#">Create account</a></p>
+      <form onSubmit={handleSubmit}>
+        <input type="email" placeholder="Email" value={Email} onChange={e => setEmail(e.target.value)} />
+        <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} />
+        
+  
+        <button type="submit">Login to your  account</button>
+  
+        <div className="or-divider">or login with</div>
+  
+        <div className="social-buttons">
+          <button className="google">Google</button>
+          <button className="apple">Apple</button>
+        </div>
+      </form>
+    </div>
+    </div>
+  </div>
 
 
 

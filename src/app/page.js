@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import "./FrontLayout.css";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
   const apiUrl = 'http://127.0.0.1:5000/receive_user_input';
@@ -8,7 +9,21 @@ export default function Home() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [messages, setMessages] = useState([]);  // Store all messages
   const chatRef = useRef(null);
-  
+  const router = useRouter();
+
+
+  useEffect(() => {
+    const isLoggedIn = localStorage.getItem("isLoggedIn");
+    if (isLoggedIn) {
+      setIsAuthenticated(true);
+    } else {
+      router.push("/login");
+    }
+  }
+  , []);
+  // Check if user is logged in
+
+
   const handleChange = (event) => {
     setText(event.target.value);
   };
