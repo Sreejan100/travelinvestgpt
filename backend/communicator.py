@@ -18,6 +18,18 @@ def receive_user_input():
 
 
  
+@app.route('/receive_login_creds', methods=['POST'])
+def receive_login_creds():
+    print('Request Received!')
+    data = request.get_json()
+    email = data.get('email','')
+    password = data.get('password','')
+
+    print(f'Received email: {email}')
+    print(f'Received password: {password}')
+    response = {'message':f'Credentials "{email}" received successfully'}
+    return jsonify(response), 200
+
 
 if __name__ == "__main__":
     app.run(debug=True)
