@@ -27,10 +27,12 @@ const handleSubmit = async (e) => {
     });
 
     const data = await response.json();
-    alert(data.message);
-    if (response.ok) {
-        localStorage.setItem("isLoggedIn", "true");
-        router.push("/");
+    if (data.message === "Login successful") {
+      localStorage.setItem("isLoggedIn", "true");
+      router.push("/");
+    } else {
+      alert(data.message);
+      router.push("/login");
     }
 }
 
