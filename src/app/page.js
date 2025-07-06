@@ -2,37 +2,36 @@
 import { useState, useEffect, useRef } from "react";
 import "./FrontLayout.css";
 import { useRouter } from "next/navigation";
+import {useSession} from "next-auth/react";
 
-export default function Home() {
+export default  function Home() {
   const apiUrl = 'http://127.0.0.1:5000/receive_user_input';
   const [text, setText] = useState('');
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [messages, setMessages] = useState([]);  // Store all messages
   const chatRef = useRef(null);
   const router = useRouter();
-
+  const {data: session, status} = useSession();
+  console.log('Session:', session);
+ console.log('Status:', status);
 
   useEffect(() => {
-    const isLoggedIn = localStorage.getItem("isLoggedIn");
-    if (isLoggedIn) {
-      setIsAuthenticated(true);
-    } else {
-      router.push("/login");
-    }
+  if (status !== "authenticated") {
+    router.push("/login"); // or your home page
   }
-  , []);
-  // Check if user is logged in
+}, [status]);
 
+  useEffect(() => {
+    if (session && chatRef.current) {
+      chatRef.current.scrollTop = chatRef.current.scrollHeight;
+    }
+  }, [session, messages]);
+
+  
 
   const handleChange = (event) => {
     setText(event.target.value);
   };
 
-  useEffect(() => {
-    if (chatRef.current) {
-      chatRef.current.scrollTop = chatRef.current.scrollHeight;
-    }
-  }, [messages]); // Scroll when new message is added
 
   async function sendAndReceiveDataFromModel(textData) {
     try {
@@ -74,9 +73,13 @@ export default function Home() {
     setText('');      // Clear input field
   }
 
+  const handleprofileClick = () => {
+    router.push('/profile');
+  }
+
   return (
     <div>
-
+        <button  onClick = {handleprofileClick} className="profile-page-button"><img src = '/ProfilePageIMG.jpg' className="profile-page-img"/></button>
         <button onClick={handleRefresh}  className="Refresh-Button"><img src='/refresh-img.png' className="refrsh-img"/></button>
         <div className="chat-container" >
           <div className="chat-messages" ref={chatRef} >

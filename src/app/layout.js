@@ -1,4 +1,6 @@
 import "./FrontLayout.css";
+import SessionWrapper from './SessionWrapper.js'
+
 
 export const metadata = {
   title: "TravelInvestGPT",
@@ -8,7 +10,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className='Main-Class-Back'>{children}</body>
+      <body className='Main-Class-Back'><SessionWrapper>{children}</SessionWrapper></body>
     </html>
   );
 }

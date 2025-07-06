@@ -8,7 +8,7 @@
     position: relative;
     padding:30px 0 0 5px;
     margin:10px;
-    margin-top: 100px;
+    /* margin-top: 100px; */
     max-height: calc(100vh - 220px);
     display:flex;
     flex-direction: column;
@@ -140,6 +140,24 @@
     width: 80px;
     height: 80px;
     mix-blend-mode: multiply;
+}
+
+
+.profile-page-button {
+    background: none;
+    border: none;
+    margin-top: 10px;
+    top:20px;
+    left:20px;
+    padding-top: 10px;
+    z-index: 1000;
+}
+.profile-page-img {
+
+    width: 80px;
+    height: 80px;
+    display: block;
+    mix-blend-mode: multiply
 }
 
 

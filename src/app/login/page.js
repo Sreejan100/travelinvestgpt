@@ -2,39 +2,51 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import "./Login.css";
+import {signIn, useSession} from "next-auth/react";
+
+
+
 
 
 export default function Login() {
 
-const [Email, setEmail] = useState("");
-const [password, setPassword] = useState("");
+
 const router = useRouter();
+const [form, setForm] = useState ({email:'', password:''});
+const [error, setError] = useState('');
+const { data: session, status } = useSession();
 
-const handleSubmit = async (e) => {
-    e.preventDefault();
 
-    const formData = {
-        email: Email,
-        password: password
-    }
-    console.log(formData);
-    const response = await fetch("http://127.0.0.1:5000/receive_login_creds", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-    });
+useEffect(() => {
+  if (status === "authenticated") {
+    router.push("/"); // or your home page
+  }
+}, [status]);
 
-    const data = await response.json();
-    if (data.message === "Login successful") {
-      localStorage.setItem("isLoggedIn", "true");
-      router.push("/");
-    } else {
-      alert(data.message);
-      router.push("/login");
-    }
-}
+
+const handleChange = (e) => {
+  setForm({...form,[e.target.name]: e.target.value});
+};
+
+
+
+const handleLogin = async (e) => {
+  e.preventDefault();
+  setError('');
+
+  const res = await signIn('credentials', {
+    redirect:true,
+    email: form.email,
+    password: form.password 
+  });
+
+  if (!res?.ok) {
+    setError('Invalid email  and password');
+  }
+  else {
+    router.push('/');
+  }
+};
 
  return (
 
@@ -45,21 +57,21 @@ const handleSubmit = async (e) => {
     </div>
     <div className="login-right">
       <h2>Login to your account</h2>
-      <p>Don't have an account? <a href="#">Create account</a></p>
-      <form onSubmit={handleSubmit}>
-        <input type="email" placeholder="Email" value={Email} onChange={e => setEmail(e.target.value)} />
-        <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} />
+      <p>Don't have an account? <a href="/register">Create account</a></p>
+      <form onSubmit={handleLogin}>
+        <input type="email" placeholder="Email" name='email' onChange={handleChange} />
+        <input type="password" placeholder="Password" name='password' onChange={handleChange} />
         
   
         <button type="submit">Login to your  account</button>
   
         <div className="or-divider">or login with</div>
-  
-        <div className="social-buttons">
-          <button className="google">Google</button>
-          <button className="apple">Apple</button>
-        </div>
       </form>
+
+      <div className="social-buttons">
+          <button className="google" onClick={() => signIn('google')}>Google</button>
+          <button className="apple" onClick={() => signIn('apple')}>Apple</button>
+      </div>
     </div>
     </div>
   </div>

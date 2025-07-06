@@ -4,12 +4,13 @@ import GoogleProvider from "next-auth/providers/google";
 import CredentialProvider from "next-auth/providers/credentials"
 import prisma from "@/lib/prisma";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import { cloudinary } from "@/lib/cloudinary";
 
 import bcrypt from "bcrypt";
 
-console.log("GOOGLE_CLIENT_ID in runtime:", process.env.GOOGLE_CLIENT_ID);
+console.log("GOOGLE_CLIENT_ID in runtime:", process.env.Google_Client_ID);
 
-export const handler = NextAuth({
+export const authOptions = {
  debug:true,
  adapter: PrismaAdapter(prisma),
     providers:[
@@ -18,8 +19,11 @@ export const handler = NextAuth({
         //     clientSecret: process.env.Google_Client_Secret
         // }),
         GoogleProvider({
-            clientId: process.env.GOOGLE_CLIENT_ID,
-            clientSecret: process.env.clientSecret,
+            clientId: process.env.Google_Client_ID,
+            clientSecret: process.env.Google_Client_Secret,
+            httpOptions: {
+                timeout: 10000, // 10 seconds timeout instead of 3.5
+            },
             authorization: {
                  params: {
                      prompt: "select_account", // 👈 always ask which account to use
@@ -51,21 +55,58 @@ export const handler = NextAuth({
     session :{
         strategy: "jwt"
     },
+    secret: process.env.NEXTAUTH_SECRET,
     pages: {
         newUser: "/",
-        signIn: "/login"
     },
     callbacks: {
-        async session ({session, token}) {
-            console.log("Session callback triggered:", { session, token });
-            session.user.id = token.sub;
-            return session;
-        },
-        async jwt ({token, user}) {
-            console.log("JWT callback triggered:", { token, user });
-            if (user) token.id = user.id;
+        async  jwt({ token, user, account, profile }) {
+            if (user) {
+                token.id = user.id;
+                token.email = user.email;
+                token.name = user.name;
+                token.image = user.image; // <-- crucial: image from DB (or default)
+            }
+
+            // On Google login: upload profile picture to Cloudinary
+            if (account?.provider === "google" && profile?.picture) {
+                try {
+                const publicId = `user_profiles/user_${user.id}`;
+
+                const uploadRes = await cloudinary.uploader.upload(profile.picture, {
+                    folder: "user_profiles",
+                    public_id: publicId,
+                    overwrite: true,
+                });
+
+                // Set Cloudinary image in JWT token
+                token.image = uploadRes.secure_url;
+                } catch (err) {
+                console.error("Cloudinary upload failed:", err);
+                }
+            }
+
             return token;
-        },
+            },
+         async session({ session, token }) {
+            try {
+                const user = await prisma.user.findUnique({
+                where: { email: token.email },
+                });
+
+                if (user) {
+                session.user.id = user.id;
+                session.user.name = user.name;
+                session.user.email = user.email;
+                session.user.image = user.image; // ✅ this often fails if null
+                }
+
+                return session;
+            } catch (error) {
+                console.error("Session callback error:", error);
+                return null; // fallback to avoid crash
+            }
+            },
     },
     cookies:{
         pkceCodeVerifier: {
@@ -79,7 +120,8 @@ export const handler = NextAuth({
         },
     },
 
-});
+};
 
 
+const handler = NextAuth(authOptions); 
 export { handler as GET, handler as POST };
