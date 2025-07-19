@@ -19,6 +19,17 @@ def receive_user_input():
     return jsonify(response), 200
 
 
+@app.route('/android_register', methods=['POST'])
+def android_register():
+    return "Hi"
+
+
+
+@app.route('/android_login', methods=['POST'])
+def android_login():
+    return "Hi"
+
+
 
 
 if __name__ == "__main__":
