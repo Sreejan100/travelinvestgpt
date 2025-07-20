@@ -49,7 +49,7 @@ def android_register():
     cursor.execute(insertsql, data)
     connection.commit()
     print(cursor.rowcount,"records inserted")    
-    return jsonify({'message': 'Registration successful'}), 200
+    return jsonify({'message': 'Registration successful','username':username,'email':email}), 200
 
 
 
@@ -69,7 +69,8 @@ def android_login():
         return jsonify({'message':'User does not exist'}),500
     
     if username == results1['name'] and bcrypt.checkpw(password,results1['password']):
-        return jsonify({'message': 'Logged In successfully','username':results1['name']}),200
+       return jsonify({'message':'Login Successful','username': results1['name'],'imageurl':results1['image'],'email':results1['email']}),200
+        
     else:
         return jsonify({'message': 'Invalid Credentials'}), 400
 
