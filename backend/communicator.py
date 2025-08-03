@@ -17,7 +17,6 @@ connection=mysql.connector.connect(
 
 
 
-
 @app.route('/receive_user_input', methods=['POST'])
 def receive_user_input():
     print('Request received!')
@@ -41,10 +40,13 @@ def android_register():
     results1 = cursor.fetchone()
     if results1:
         return jsonify({'message': 'User already exists'}), 400
+    cursor.execute("SELECT * FROM User WHERE email = %s", (email,))
+    if cursor.fetchone():
+        return jsonify({'message': 'Email already exists'}), 400
 
     insertsql="Insert into User (name, email, password) values (%s,%s,%s)"
     salt = bcrypt.gensalt()
-    hashed_password = bcrypt.hashpw(password,salt)
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'),salt)
     data= (username,email,hashed_password)
     cursor.execute(insertsql, data)
     connection.commit()
@@ -68,8 +70,8 @@ def android_login():
     if not results1:
         return jsonify({'message':'User does not exist'}),500
     
-    if username == results1['name'] and bcrypt.checkpw(password,results1['password']):
-       return jsonify({'message':'Login Successful','username': results1['name'],'imageurl':results1['image'],'email':results1['email']}),200
+    if username == results1[1] and bcrypt.checkpw(password.encode('utf-8'),results1[5].encode('utf-8')):
+       return jsonify({'message':'Login Successful','username': results1[1],'imageurl':results1[4],'email':results1[2]}),200
         
     else:
         return jsonify({'message': 'Invalid Credentials'}), 400
@@ -78,4 +80,4 @@ def android_login():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0',port=5000)
