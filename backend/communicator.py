@@ -27,9 +27,9 @@ def receive_user_input():
     return jsonify(response), 200
 
 
-@app.route('/android_register', methods=['POST'])
-def android_register():
-    print('Registration Request from android app received')
+@app.route('/mobile_register', methods=['POST'])
+def mobile_register():
+    print('Registration Request from mobile app received')
     connection.autocommit = False
     data = request.get_json()
     username = data.get('username')
@@ -55,9 +55,9 @@ def android_register():
 
 
 
-@app.route('/android_login', methods=['POST'])
-def android_login():
-    print('Login request from Android app received')
+@app.route('/mobile_login', methods=['POST'])
+def mobile_login():
+    print('Login request from Mobile app received')
     data = request.get_json()
     username = data.get('username')
     password = data.get('password')
@@ -75,9 +75,27 @@ def android_login():
         
     else:
         return jsonify({'message': 'Invalid Credentials'}), 400
+    
+    
+@app.route('/mobile_profile_delete', methods=['POST'])
+def mobile_profile_delete():
+    print("Account deletion request received from Mobile app")
+    connection.autocommit = False
+    data = request.get_json()
+    username = data.get('name')
+    email = data.get('email')
+    cursor = connection.cursor()
+    cursor.execute("Select * from User  where name = '{0}' and email = '{1}'".format(username, email))
+    results2 = cursor.fetchone()
+    if not results2:
+        return jsonify({'message':'User does not exist'}),500
+    cursor.execute("Delete from User where name = '{0}' and email = '{1}' ".format(username,email))
+    connection.commit()
+    print("User record deleted")
+    return jsonify({'message': 'User record deleted successfully'}), 200
 
 
 
 
 if __name__ == "__main__":
-    app.run(debug=True, host='0.0.0.0',port=5000)
+    app.run(debug=True, host='0.0.0.0',port=5010)
