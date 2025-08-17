@@ -95,6 +95,28 @@ def mobile_profile_delete():
     return jsonify({'message': 'User record deleted successfully'}), 200
 
 
+@app.route("/mobile_profile_image_upload",methods=['POST'])
+def mobile_profile_image_upload():
+    print("Photo upload request received from Mobile Apps")
+    connection.autocommit = False
+    data = request.get_json()
+    username = data.get("name")
+    email = data.get("email")
+    imageurl = data.get("imageurl")
+    print("DEBUG VALUES:", username, email, imageurl)
+    try:
+        cursor = connection.cursor()
+        cursor.execute(
+            "UPDATE User SET image = %s WHERE name = %s AND email = %s",
+            (imageurl, username, email)
+        )
+        connection.commit()
+        print("Profile Image updated for user {username}")
+        return jsonify({'status':'success','message':'Profile Image Updated Successfully'}), 200
+    except Exception as e:
+        print("DB ERROR:", str(e))
+        return jsonify({'status':'error','message':str(e)}),500
+
 
 
 if __name__ == "__main__":
