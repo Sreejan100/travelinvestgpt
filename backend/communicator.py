@@ -2,11 +2,17 @@ from flask import Flask, jsonify,request
 from flask_cors import CORS
 import mysql.connector
 import bcrypt
-
+from dotenv import load_dotenv
+import os
+from google.oauth2 import id_token
+from google.auth.transport import requests as google_requests
 
 
 app = Flask(__name__)
 CORS(app)
+
+load_dotenv()
+CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 
 connection=mysql.connector.connect(
     host="localhost",
@@ -14,7 +20,6 @@ connection=mysql.connector.connect(
     password = "Debjanilover09",
     database="travelinvestgpt"
     )
-
 
 
 @app.route('/receive_user_input', methods=['POST'])
@@ -62,20 +67,17 @@ def mobile_login():
     username = data.get('username')
     password = data.get('password')
     email = data.get('email')
-
     cursor = connection.cursor()
     cursor.execute("Select * from User where email = '{0}'".format(email))
     results1 = cursor.fetchone()
-
     if not results1:
         return jsonify({'message':'User does not exist'}),500
     
     if username == results1[1] and bcrypt.checkpw(password.encode('utf-8'),results1[5].encode('utf-8')):
-       return jsonify({'message':'Login Successful','username': results1[1],'imageurl':results1[4],'email':results1[2]}),200
-        
+        return jsonify({'message':'Login Successful','username': results1[1],'imageurl':results1[4],'email':results1[2]}),200    
     else:
         return jsonify({'message': 'Invalid Credentials'}), 400
-    
+        
     
 @app.route('/mobile_profile_delete', methods=['POST'])
 def mobile_profile_delete():
@@ -118,6 +120,33 @@ def mobile_profile_image_upload():
         return jsonify({'status':'error','message':str(e)}),500
 
 
+@app.route("/google_authentication",methods=['POST'])
+def google_authentication():
+    print("Google Authentication Request received")
+    data = request.get_json()
+    token = data.get('idToken')
+    connection.autocommit = False
+    try:
+        idinfo = id_token.verify_oauth2_token(token, google_requests.Request(),CLIENT_ID)
+        email = idinfo['email']
+        name = idinfo.get('name','')
+        picture_url = idinfo.get('picture',None)
+        cursor = connection.cursor()
+        cursor.execute("SELECT * FROM User WHERE email = %s", (email,))
+        user = cursor.fetchone()
+
+        if not user:
+            insertsql = 'INSERT INTO User(name,email,image,password) values (%s,%s,%s,%s)'
+            cursor.execute(insertsql,(name,email,picture_url,None))
+            connection.commit()
+        else:
+            if user[4] is None and picture_url:  
+                updatesql = "UPDATE User SET profile_pic = %s WHERE email = %s and name = %s"
+                cursor.execute(updatesql, (picture_url, email,name))
+                connection.commit()
+        return jsonify({'message':'Login Successful','username': name,'imageurl':picture_url,'email':email}),200
+    except Exception as e:
+        return jsonify({"message": "Invalid token"}), 400
 
 if __name__ == "__main__":
-    app.run(debug=True, host='0.0.0.0',port=5010)
+    app.run(debug=True, host='0.0.0.0',port=5030)
