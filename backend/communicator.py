@@ -121,9 +121,9 @@ def mobile_register():
         expires_at = (datetime.utcnow() + timedelta(days=30)).isoformat()
         try:
             cursor.execute("""
-                INSERT OR IGNORE INTO user_tokens (user_id, token_id, token_hash, expires_at) 
-                VALUES (%s, %s, %s, %s)
-            """, (user_id, token_id, hashlib.sha256(jwt_token.encode()).hexdigest()),expires_at)
+                INSERT INTO user_tokens (user_id, token_id, token_hash, expires_at) 
+                VALUES (%s, %s, %s, DATE_ADD(NOW(), INTERVAL 30 DAY))
+            """, (user_id, token_id, hashlib.sha256(jwt_token.encode()).hexdigest()))
             connection.commit()
         except Exception as e:
             print(f"Warning: Could not store token: {e}")
@@ -181,9 +181,9 @@ def mobile_login():
         expires_at = (datetime.utcnow() + timedelta(days=30)).isoformat()
         try:
             cursor.execute("""
-                INSERT OR IGNORE INTO user_tokens (user_id, token_id, token_hash, expires_at) 
-                VALUES (%s, %s, %s, %s)
-            """, (user_id, token_id, hashlib.sha256(jwt_token.encode()).hexdigest()),expires_at)
+                INSERT INTO user_tokens (user_id, token_id, token_hash, expires_at) 
+                VALUES (%s, %s, %s, DATE_ADD(NOW(), INTERVAL 30 DAY))
+            """, (user_id, token_id, hashlib.sha256(jwt_token.encode()).hexdigest()))
             
             connection.commit()
         except Exception as e:
@@ -257,12 +257,13 @@ def mobile_profile_delete():
 @jwt_required()
 def mobile_profile_image_upload():
     print("Photo upload request received from Mobile Apps")
-    conection.autocommit = False
+    connection.autocommit = False
     try:
-        current_user = get_jwt_identity()
+        user_id = get_jwt_identity()
         token_claims = get_jwt()
-        username = current_user['username']
-        email = current_user['email']
+        data = request.get_json()
+        username = data.get('name')
+        email = data.get('email')
         imageurl = data.get('imageurl')
         cursor = connection.cursor()
         cursor.execute(
@@ -270,7 +271,7 @@ def mobile_profile_image_upload():
             (imageurl, username, email)
         )
         connection.commit()
-        print("Profile Image updated for user {username}")
+        print(f"Profile Image updated for user {username}")
         return jsonify({'status':'success','message':'Profile Image Updated Successfully'}), 200
     except Exception as e:
         print("DB ERROR:", str(e))
