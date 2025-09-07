@@ -20,8 +20,6 @@ from flask_jwt_extended import (
 
 
 
-print("JWT_SECRET_KEY:", os.getenv("JWT_SECRET_KEY"))
-
 app = Flask(__name__)
 app.config['JWT_SECRET_KEY'] = os.getenv("JWT_SECRET_KEY")
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=30)
@@ -300,6 +298,7 @@ def google_authentication():
             insertsql = 'INSERT INTO User(name,email,image,password) values (%s,%s,%s,%s)'
             cursor.execute(insertsql,(name,email,picture_url,None))
             user_id = cursor.lastrowid
+            current_image = picture_url
             connection.commit()
         else:
             user_id = user[0]
@@ -335,6 +334,34 @@ def google_authentication():
         return jsonify({'message':'Login Successful','username': name,'imageurl':current_image,'email':email,'token': jwt_token}),200
     except Exception as e:
         return jsonify({"message": "Invalid token"}), 400
+
+
+@app.route("/mobile_logout",methods=['GET'])
+@jwt_required()
+def mobile_logout():
+
+    print("Logout request received from mobile device")
+    connection.autocommit = False
+    try:
+        user_id = get_jwt_identity()
+        token_claims = get_jwt()
+        current_user_id = token_claims.get('jti')
+
+        cursor = connection.cursor()
+
+        cursor.execute("UPDATE user_tokens SET is_revoked=TRUE where user_id = %s",(user_id,))
+
+        connection.commit()
+        revoked_tokens.add(current_user_id)
+        
+        return jsonify({'message':'Logged Out User Successfully'}), 200
+    except Exception as e:
+        connection.rollback()
+        return jsonify({"message": "Invalid token"}), 400
+
+
+
+
 
 
 
