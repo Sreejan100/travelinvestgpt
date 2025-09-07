@@ -71,6 +71,7 @@ def is_token_revoked(token_id):
 
 
 @app.route('/receive_user_input', methods=['POST'])
+@jwt_required()
 def receive_user_input():
     print('Request received!')
     data = request.get_json()
